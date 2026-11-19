@@ -33,26 +33,24 @@
 }
 
 .logo-box {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 72%);
-  border: none;
-  border-radius: 50%;
-  padding: 12px;
-  margin-top: 8px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 8px;
 }
 
 .brand-logo {
-  width: 270px;
+  width: 260px;
   height: auto;
   display: block;
+  transform: scale(1.90);
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
   transition: transform 0.3s ease;
 }
 
 .brand-logo:hover {
-  transform: scale(1.04);
+  transform: scale(1.32);
 }
 
 .banner-overlay h2 {

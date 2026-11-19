@@ -1,6 +1,13 @@
+mat-toolbar {
+  background-color: #153e35 !important;
+  color: #ffffff !important;
+}
+
 span {
   margin: auto;
   text-align: center;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .example-spacer {
@@ -8,5 +15,6 @@ span {
 }
 
 button {
-  margin: 6px 2px;
+  margin: 6px 4px;
 }
+
