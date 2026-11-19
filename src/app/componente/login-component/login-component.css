@@ -2,48 +2,134 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 85vh;
-  padding: 16px;
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  box-sizing: border-box;
 }
 
-.login-card {
+.login-split-card {
+  display: flex;
+  flex-direction: row;
   width: 100%;
-  max-width: 440px;
-  padding: 16px;
+  max-width: 900px;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
 }
 
-.header-center {
-  justify-content: center;
+.left-banner {
+  flex: 1;
+  min-height: 480px;
+  background: linear-gradient(155deg, #0f292e 0%, #1b4d3e 55%, #2e7d32 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   text-align: center;
+  padding: 32px 28px;
+  color: #ffffff;
+}
+
+.logo-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  padding: 20px;
+  margin-top: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.brand-logo {
+  width: 190px;
+  height: auto;
+  display: block;
+}
+
+.banner-overlay h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.banner-overlay p {
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  opacity: 0.92;
+  line-height: 1.5;
+}
+
+.eco-chips {
+  display: flex;
+  justify-content: center;
+}
+
+.right-form {
+  flex: 1.15;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-title {
   margin-bottom: 12px;
+}
+
+.brand-title h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.brand-title span {
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 20px;
+  gap: 10px;
+  padding-top: 18px;
+  overflow: hidden;
 }
 
 .role-selector {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .role-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #555;
+  color: #4b5563;
 }
 
 .full-width {
   width: 100%;
 }
 
-.btn-action {
+.btn-primary-eco {
   height: 44px;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  background-color: #2e7d32 !important;
+  color: #ffffff !important;
+  border-radius: 22px !important;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .login-split-card {
+    flex-direction: column;
+  }
+  .left-banner {
+    min-height: 220px;
+  }
 }
