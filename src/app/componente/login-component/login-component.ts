@@ -73,7 +73,7 @@ export class LoginComponent implements OnInit {
 
     this.loginService.login(requestDto).subscribe({
       next: (data) => {
-        const rolReal = data.roles && data.roles.length > 0 ? data.roles : '';
+        const rolReal = data.roles && data.roles.length > 0 ? data.roles[0] : '';
 
         if (rolReal !== tipoSeleccionado) {
           this.loginService.logout();

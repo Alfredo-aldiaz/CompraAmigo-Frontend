@@ -1,1 +1,24 @@
-<p>navbar works!</p>
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span>CompraAmigo</span>
+    <span class="example-spacer"></span>
+
+    @if (esAdministrador()) {
+      <button mat-raised-button [routerLink]="'/home'" color="warn">Home</button>
+      <button mat-raised-button [routerLink]="'/admin-productos'">Productos</button>
+      <button mat-raised-button [routerLink]="'/admin-dashboard'">Dashboard ODS</button>
+    }
+
+    @if (esUsuario()) {
+      <button mat-raised-button [routerLink]="'/home'" color="warn">Home</button>
+      <button mat-raised-button [routerLink]="'/catalogo'">Catálogo</button>
+      <button mat-raised-button [routerLink]="'/carrito'">Carrito</button>
+      <button mat-raised-button [routerLink]="'/impacto'">Mi Impacto ODS</button>
+      <button mat-raised-button [routerLink]="'/chatbot'">Chatbot</button>
+    }
+
+    <button mat-raised-button [routerLink]="'/login'" (click)="cerrarSesion()">Logout</button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+}
