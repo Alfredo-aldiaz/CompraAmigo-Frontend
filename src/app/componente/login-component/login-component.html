@@ -1,12 +1,33 @@
 <div class="login-wrapper">
-  <mat-card class="login-card">
-    <mat-card-header class="header-center">
-      <mat-card-title>CompraAmigo</mat-card-title>
-      <mat-card-subtitle>Plataforma de compras sostenibles</mat-card-subtitle>
-    </mat-card-header>
+  <mat-card class="login-split-card">
 
-    <mat-card-content>
-      <mat-tab-group [(selectedIndex)]="tabIndex" mat-stretch-tabs="true">
+    <div class="left-banner">
+      <div class="logo-box">
+        <img src="images/logo_compraamigo.png" alt="Logo CompraAmigo" class="brand-logo" />
+      </div>
+
+      <div class="banner-overlay">
+        <h2>Compra con propósito</h2>
+        <p>Descubre productos responsables, mide tu impacto positivo en los ODS y recibe ayuda de nuestro asistente inteligente.</p>
+
+        <mat-chip-set class="eco-chips">
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>eco</mat-icon> Impacto ODS
+          </mat-chip>
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>smart_toy</mat-icon> Asistente IA
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <div class="right-form">
+      <div class="brand-title">
+        <h2>CompraAmigo</h2>
+        <span>Elige cómo deseas ingresar o crea tu cuenta</span>
+      </div>
+
+      <mat-tab-group [(selectedIndex)]="tabIndex" mat-stretch-tabs="true" dynamicHeight>
 
         <mat-tab label="Iniciar Sesión">
           <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" class="form-container">
@@ -25,7 +46,7 @@
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Correo electrónico</mat-label>
-              <input matInput type="email" formControlName="username" placeholder="ejemplo@correo.com" />
+              <input matInput type="email" formControlName="username" placeholder="cliente@gmail.com" />
               <mat-icon matSuffix>email</mat-icon>
             </mat-form-field>
 
@@ -37,7 +58,7 @@
               </button>
             </mat-form-field>
 
-            <button type="submit" mat-raised-button color="primary" class="full-width btn-action">
+            <button type="submit" mat-raised-button class="full-width btn-primary-eco">
               Ingresar
             </button>
           </form>
@@ -48,7 +69,7 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Nombre completo</mat-label>
               <input matInput formControlName="nombre" placeholder="Tu nombre" />
-              <mat-icon matSuffix>badge</mat-icon>
+              <mat-icon matSuffix>person</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -65,13 +86,14 @@
               </button>
             </mat-form-field>
 
-            <button type="submit" mat-raised-button color="accent" class="full-width btn-action">
+            <button type="submit" mat-raised-button class="full-width btn-primary-eco">
               Crear cuenta de Usuario
             </button>
           </form>
         </mat-tab>
 
       </mat-tab-group>
-    </mat-card-content>
+    </div>
+
   </mat-card>
 </div>
