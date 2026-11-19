@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { LoginService } from '../../services/login-service';
 import { RequestDto } from '../../model/request-dto';
 import { RegistroDto } from '../../model/registro-dto';
+import { MatChipsModule } from '@angular/material/chips';
+
 
 @Component({
   selector: 'app-login-component',
@@ -26,6 +28,7 @@ import { RegistroDto } from '../../model/registro-dto';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatChipsModule
   ],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
