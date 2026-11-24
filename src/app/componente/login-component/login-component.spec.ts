@@ -75,15 +75,40 @@ describe('LoginComponent', () => {
   });
 
   it('el registro solo envía los datos de una cuenta cliente', () => {
+    componente.loginForm.controls.password.setValue('ContraseñaDeOtraCuenta');
     componente.registerForm.setValue({
       nombre: 'Cliente', username: 'cliente@example.com', password: 'ClaveDemo2026',
     });
     servicio.registrar.mockReturnValue(of('Usuario registrado correctamente'));
+    servicio.login.mockReturnValue(of({
+      roles: ['ROLE_USER'], userId: 30, nombre: 'Cliente',
+    }));
     componente.onSubmitRegister();
     expect(servicio.registrar).toHaveBeenCalledWith({
       nombre: 'Cliente', username: 'cliente@example.com', password: 'ClaveDemo2026',
     });
     expect(componente.tabIndex).toBe(0);
     expect(componente.loginForm.controls.verificarHumano.value).toBe(false);
+    expect(componente.loginForm.controls.password.value).toBe('');
+    expect(servicio.login).toHaveBeenCalledWith({
+      username: 'cliente@example.com', password: 'ClaveDemo2026',
+    });
+    expect(localStorage.getItem('userId')).toBe('30');
+    expect(navegar).toHaveBeenCalledWith(['/perfil']);
+  });
+
+  it('si el alta funciona pero falla el acceso, pide la contraseña nueva sin conservar la anterior', () => {
+    componente.loginForm.controls.password.setValue('ContraseñaDeOtraCuenta');
+    componente.registerForm.setValue({
+      nombre: 'Cliente', username: 'cliente@example.com', password: 'ClaveNueva2026',
+    });
+    servicio.registrar.mockReturnValue(of('Usuario registrado correctamente'));
+    servicio.login.mockReturnValue(throwError(() => ({ status: 401 })));
+    componente.onSubmitRegister();
+    expect(componente.loginForm.controls.password.value).toBe('');
+    expect(componente.loginForm.controls.username.value).toBe('cliente@example.com');
+    expect(componente.ocupado).toBe(false);
+    expect(componente.mensaje).toContain('Tu cuenta fue creada');
+    expect(navegar).not.toHaveBeenCalled();
   });
 });

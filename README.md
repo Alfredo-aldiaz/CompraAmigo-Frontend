@@ -11,6 +11,10 @@ Cada pantalla se encuentra en `src/app/componente/<nombre>-component/`, con arch
 La base de autenticación, la carpeta `login-component` y el menú `navbar` continúan la estructura de master.
 La pestaña **Crear cuenta** usa un formulario reactivo con Angular Material y envía `nombre`, `username` y `password` a `POST /api/register`.
 El registro crea una cuenta cliente. El acceso administrativo usa el rol que entrega la API.
+Al completar el alta, el frontend inicia sesión con las credenciales recién registradas y abre Mi perfil.
+Allí aparecen nombre y correo. Teléfono, ciudad, distrito y dirección quedan para completar.
+Carrito, historial e impacto se consultan por la identidad de la cuenta actual.
+La sesión anterior se retira al cambiar de cuenta y al completar un registro.
 El login solicita correo, contraseña y la confirmación «Confirmo que soy humano».
 La casilla usa `MatCheckbox` con `Validators.requiredTrue`. Es una confirmación del formulario.
 Spring determina el rol de la cuenta autenticada. El administrador abre Inventario y el usuario abre Catálogo.
@@ -24,7 +28,7 @@ El proxy se aplica al servidor local de desarrollo. La configuración del despli
 
 ### Verificación de la integración
 
-Se comprobó la compilación de producción, seis pruebas automáticas de navegación y login, y un recorrido de navegador contra Spring Boot, PostgreSQL temporal y un buzón SMTP de prueba.
+Se comprobó la compilación de producción, las pruebas automáticas de navegación, login y cambio de sesión, y un recorrido de navegador contra Spring Boot, PostgreSQL temporal y un buzón SMTP de prueba.
 El recorrido creó una cuenta desde Angular, rechazó un correo duplicado, inició y cerró sesión, guardó el perfil y completó una compra por S/ 188.
 También se comprobó la gestión de productos y stock, el seguimiento a «En camino», el chat, el código del ticket y el recibo HTML.
 La API rechazó el acceso a pedidos y carritos ajenos. El formulario de registro se revisó en 1280 y 390 píxeles de ancho.

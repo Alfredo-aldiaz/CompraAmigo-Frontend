@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from '../../services/login-service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ResponseDto } from '../../model/response-dto';
 
 @Component({
   selector: 'app-login-component',
@@ -42,28 +44,13 @@ export class LoginComponent {
     if (this.ocupado || this.loginForm.invalid) return;
     this.ocupado = true;
     this.error = '';
+    this.mensaje = '';
     const datos = this.loginForm.getRawValue();
     this.loginService.login({ username: datos.username.trim(), password: datos.password }).subscribe({
-      next: data => {
-        const rol = data.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN'
-          : data.roles?.includes('ROLE_USER') ? 'ROLE_USER' : null;
-        if (rol === null) {
-          this.loginService.logout();
-          this.loginForm.controls.verificarHumano.reset();
-          this.error = 'La cuenta no tiene un rol de acceso válido.';
-          this.terminar();
-          return;
-        }
-        localStorage.setItem('rol', rol);
-        localStorage.setItem('roles', data.roles.join(','));
-        localStorage.setItem('nombre', data.nombre || '');
-        localStorage.setItem('userId', String(data.userId));
-        this.terminar();
-        this.router.navigate([rol === 'ROLE_ADMIN' ? '/admin/productos' : '/catalogo']);
-      },
-      error: () => {
+      next: data => this.abrirSesion(data, '/catalogo'),
+      error: (respuesta: HttpErrorResponse) => {
         this.loginForm.controls.verificarHumano.reset();
-        this.error = 'No se pudo ingresar. Revisa las credenciales y la conexión.';
+        this.error = this.errorDeIngreso(respuesta);
         this.terminar();
       },
     });
@@ -76,21 +63,53 @@ export class LoginComponent {
     this.error = '';
     this.mensaje = '';
     const datos = this.registerForm.getRawValue();
-    this.loginService.registrar({
+    const registro = {
       ...datos, nombre: datos.nombre.trim(), username: datos.username.trim(),
-    }).subscribe({
+    };
+    this.loginService.registrar(registro).subscribe({
       next: () => {
-        this.loginForm.patchValue({ username: datos.username.trim(), verificarHumano: false });
+        this.loginForm.reset({ username: registro.username, password: '', verificarHumano: false });
         this.registerForm.reset();
-        this.tabIndex = 0;
-        this.mensaje = 'Cuenta creada. Inicia sesión con tu correo y contraseña.';
-        this.terminar();
+        this.loginService.login({ username: registro.username, password: registro.password }).subscribe({
+          next: data => this.abrirSesion(data, '/perfil'),
+          error: (respuesta: HttpErrorResponse) => {
+            this.tabIndex = 0;
+            this.mensaje = 'Tu cuenta fue creada. Ingresa con la contraseña que acabas de registrar.';
+            this.error = this.errorDeIngreso(respuesta);
+            this.terminar();
+          },
+        });
       },
       error: () => {
         this.error = 'No se pudo crear la cuenta. Comprueba si el correo ya está registrado.';
         this.terminar();
       },
     });
+  }
+
+  private abrirSesion(data: ResponseDto, destinoCliente: string): void {
+    const rol = data.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN'
+      : data.roles?.includes('ROLE_USER') ? 'ROLE_USER' : null;
+    if (rol === null) {
+      this.loginService.logout();
+      this.loginForm.controls.verificarHumano.reset();
+      this.error = 'La cuenta no tiene un rol de acceso válido.';
+      this.terminar();
+      return;
+    }
+    localStorage.setItem('rol', rol);
+    localStorage.setItem('roles', data.roles.join(','));
+    localStorage.setItem('nombre', data.nombre || '');
+    localStorage.setItem('userId', String(data.userId));
+    this.terminar();
+    this.router.navigate([rol === 'ROLE_ADMIN' ? '/admin/productos' : destinoCliente]);
+  }
+
+  private errorDeIngreso(respuesta: HttpErrorResponse): string {
+    if (respuesta.status === 401 || respuesta.error?.code === 'AUTH_ERROR') {
+      return 'El correo y la contraseña no coinciden. Usa la contraseña de esta cuenta.';
+    }
+    return respuesta.error?.message || 'No pudimos conectar con el servidor. Comprueba que el backend esté encendido.';
   }
 
   private terminar(): void {
