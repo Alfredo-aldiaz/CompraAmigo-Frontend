@@ -1,0 +1,9 @@
+<section class="encabezado"><div><h1>Soporte</h1><p>Registra tu consulta para que el equipo pueda revisarla.</p></div></section>
+<form class="panel soporte" [formGroup]="formulario" (ngSubmit)="registrar()">
+  <mat-form-field appearance="outline" ><mat-label>Asunto</mat-label><input matInput formControlName="asunto" maxlength="120" required><mat-error>Revisa este campo.</mat-error></mat-form-field>
+  <mat-form-field appearance="outline" ><mat-label>Mensaje</mat-label><textarea matInput formControlName="mensaje" maxlength="2000" rows="5" required></textarea><mat-error>Revisa este campo.</mat-error></mat-form-field>
+  <mat-form-field appearance="outline" ><mat-label>Número de pedido (opcional)</mat-label><input matInput type="number" min="1" formControlName="pedidoId"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+  @if (codigo()) { <p class="aviso" role="status">Ticket registrado. Código de seguimiento <strong>{{ codigo() }}</strong>.</p> }
+  <button mat-flat-button type="submit" [disabled]="enviando() || formulario.invalid">Registrar ticket</button>
+</form>

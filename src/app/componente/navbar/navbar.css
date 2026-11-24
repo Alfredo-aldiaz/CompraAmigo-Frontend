@@ -1,20 +1,3 @@
-mat-toolbar {
-  background-color: #153e35 !important;
-  color: #ffffff !important;
-}
-
-span {
-  margin: auto;
-  text-align: center;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.example-spacer {
-  flex: 1 1 auto;
-}
-
-button {
-  margin: 6px 4px;
-}
-
+mat-toolbar { background: #153e35; color: white; height: auto; min-height: 64px; flex-wrap: wrap; gap: 12px; }
+nav { display: flex; flex-wrap: wrap; margin-left: auto; }
+a.mat-mdc-button, button.mat-mdc-button { color: white; }

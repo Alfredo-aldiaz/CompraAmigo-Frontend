@@ -1,0 +1,40 @@
+<section class="encabezado">
+  <div><p class="etiqueta">Tienda CompraAmigo</p><h1>Catálogo</h1><p>Encuentra tus productos y arma tu carrito.</p></div>
+  @if (sesion.sesion()?.roles?.includes('ROLE_USER')) { <a mat-stroked-button routerLink="/carrito">Ver carrito</a> }
+</section>
+@if (cargando()) { <p role="status">Cargando catálogo…</p> }
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+@if (aviso()) { <p class="aviso" role="status">{{ aviso() }} <a routerLink="/carrito">Ver carrito</a></p> }
+@if (!cargando() && productos().length) {
+  <mat-form-field appearance="outline" class="buscar-producto"><mat-label>Buscar por nombre</mat-label><input matInput type="search" #buscar [value]="busqueda()" (input)="busqueda.set(buscar.value)" placeholder="Ej. mochila">
+  <mat-error>Revisa este campo.</mat-error></mat-form-field>
+  <p class="muted conteo-productos" aria-live="polite">{{ visibles().length }} productos</p>
+}
+<div class="catalogo">
+  @for (producto of visibles(); track producto.id) {
+    <article class="producto">
+      @if (imagen(producto); as foto) { <img [src]="foto" [alt]="producto.nombre" loading="lazy"> }
+      @else { <div class="sin-foto">Imagen no disponible</div> }
+      <div class="producto-info">
+        @if (producto.categoria?.nombre) { <p class="etiqueta">{{ producto.categoria?.nombre }}</p> }
+        <h2>{{ producto.nombre }}</h2>
+        <p class="muted">{{ producto.descripcion }}</p>
+        <strong class="precio">{{ producto.precio | currency:'PEN':'S/ ' }}</strong>
+        <a mat-stroked-button [routerLink]="['/producto', producto.id]">Ver detalle</a>
+        @if (sesion.sesion()?.roles?.includes('ROLE_USER')) {
+          @let opciones = tallas(producto);
+          <mat-form-field appearance="outline" [hidden]="opciones.length === 0"><mat-label>Talla</mat-label><mat-select [value]="opciones[0] || ''" #talla [aria-label]="'Talla de ' + producto.nombre">
+              @for (opcion of opciones; track opcion) { <mat-option [value]="opcion">{{ opcion }}</mat-option> }
+              @empty { <mat-option value="">Única</mat-option> }
+            </mat-select>
+          <mat-error>Revisa este campo.</mat-error></mat-form-field>
+          <button mat-flat-button type="button" [disabled]="producto.stock <= 0 || pendiente() !== null" (click)="agregar(producto, talla.value)">
+            {{ producto.stock <= 0 ? 'Agotado' : 'Agregar al carrito' }}
+          </button>
+        }
+      </div>
+    </article>
+  } @empty {
+    @if (!cargando() && !error()) { <p>{{ busqueda().trim() ? 'No se encontraron productos con ese nombre.' : 'El catálogo está vacío.' }}</p> }
+  }
+</div>

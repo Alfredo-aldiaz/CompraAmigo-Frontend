@@ -1,20 +1,22 @@
 import { Component, inject } from '@angular/core';
-import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatToolbar } from '@angular/material/toolbar';
 import { MatButton } from '@angular/material/button';
+import { LoginService } from '../../services/login-service';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [MatToolbar, MatButton, RouterLink, MatToolbarRow],
+  imports: [MatToolbar, MatButton, RouterLink],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar {
   router: Router = inject(Router);
-  rol: any;
+  rol: string | null = null;
+  loginService = inject(LoginService);
 
   estaLogueado(): boolean {
-    return localStorage.getItem('token') !== null;
+    return this.loginService.getToken() !== null;
   }
 
   obtenerNombre(): string {
@@ -32,7 +34,7 @@ export class Navbar {
   }
 
   cerrarSesion(): void {
-    localStorage.clear();
+    this.loginService.logout();
     this.router.navigate(['/login']);
   }
 }

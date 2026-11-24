@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestDto } from '../model/request-dto';
 import { ResponseDto } from '../model/response-dto';
@@ -12,11 +12,13 @@ const TOKEN_KEY = 'token';
   providedIn: 'root',
 })
 export class LoginService {
+  private readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private readonly http = inject(HttpClient);
   private readonly urlAuth = environment.apiURL + '/authenticate';
   private readonly urlRegister = environment.apiURL + '/register';
 
   login(request: RequestDto): Observable<ResponseDto> {
+    this.logout();
     return this.http.post<ResponseDto>(this.urlAuth, request, { observe: 'response' }).pipe(
       map((response) => {
         const bearerToken = response.headers.get('Authorization');
@@ -26,17 +28,24 @@ export class LoginService {
         } else if (response.body?.jwt) {
           localStorage.setItem(TOKEN_KEY, response.body.jwt);
         }
+        this.token.set(localStorage.getItem(TOKEN_KEY));
         return response.body as ResponseDto;
+      }),
+      catchError(error => {
+        this.logout();
+        return throwError(() => error);
       }),
     );
   }
 
   registrar(registro: RegistroDto): Observable<string> {
-    return this.http.post(this.urlRegister, registro, { responseType: 'text' });
+    return this.http.post(this.urlRegister, registro, { responseType: 'text' }).pipe(
+      tap(() => this.logout()),
+    );
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.token();
   }
 
   getRol(): string | null {
@@ -44,6 +53,9 @@ export class LoginService {
   }
 
   logout(): void {
-    localStorage.clear();
+    this.token.set(null);
+    for (const key of ['token', 'rol', 'roles', 'nombre', 'userId']) {
+      localStorage.removeItem(key);
+    }
   }
 }

@@ -1,0 +1,12 @@
+<section class="encabezado"><div><h1>Mis pedidos</h1><p>Consulta el estado y el impacto registrado en cada compra.</p></div><a mat-stroked-button routerLink="/catalogo">Volver al catálogo</a></section>
+@if (cargando()) { <p role="status">Cargando pedidos…</p> }
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+<div class="pedidos">
+  @for (pedido of pedidos(); track pedido.pedidoId) {
+    <article class="panel pedido">
+      <div><p class="etiqueta">{{ pedido.estado }}</p><h2>Pedido #{{ pedido.pedidoId }}</h2><p class="muted">{{ pedido.fecha | date:'dd/MM/yyyy' }}</p><strong>{{ pedido.total | currency:'PEN':'S/ ' }}</strong></div>
+      <app-eco-impacto [valor]="pedido.co2Ahorrado" detalle="Estimación guardada con el pedido." />
+      <a mat-stroked-button [routerLink]="['/pedidos', pedido.pedidoId]">Ver seguimiento</a>
+    </article>
+  } @empty { @if (!cargando() && !error()) { <p>Todavía no tienes pedidos.</p> } }
+</div>

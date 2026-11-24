@@ -1,0 +1,35 @@
+<section class="encabezado">
+  <div><h1>{{ confirmacion ? 'Pedido confirmado' : 'Seguimiento del pedido' }}</h1></div>
+  <a mat-stroked-button routerLink="/pedidos">Mis pedidos</a>
+</section>
+@if (cargando()) { <p role="status">Cargando pedido…</p> }
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+@if (pedido(); as orden) {
+  <div class="dos-columnas">
+    <section class="panel">
+      <h2>Pedido #{{ orden.pedidoId }}</h2>
+      <p class="muted">{{ orden.fecha | date:'dd/MM/yyyy' }} · {{ orden.metodoPago }}</p>
+      <ol class="seguimiento" aria-label="Estado del pedido">
+        @for (estado of estados; track estado) {
+          <li [attr.aria-current]="orden.estado === estado ? 'step' : null">{{ estado }}</li>
+        }
+      </ol>
+      <p>Estado actual <strong>{{ orden.estado }}</strong></p>
+      @if (orden.estadoActualizadoEn) { <p class="muted">Actualizado el {{ orden.estadoActualizadoEn | date:'dd/MM/yyyy HH:mm' }}</p> }
+      <div class="lista-detalle">
+        @for (detalle of orden.detalles; track detalle.detalleId) {
+          <p>{{ detalle.cantidad }} × {{ detalle.nombreProducto }} · {{ detalle.talla }}</p>
+        }
+      </div>
+      <p>{{ orden.nombreReceptor }} · {{ orden.direccionEnvio }}, {{ orden.distrito }}, {{ orden.ciudad }}</p>
+    </section>
+    <div class="resumen">
+      <app-eco-impacto [valor]="orden.co2Ahorrado" detalle="Estimación guardada con el pedido." />
+      <section class="panel">
+        <p>Subtotal <strong>{{ orden.subtotal | currency:'PEN':'S/ ' }}</strong></p>
+        <p>Envío <strong>{{ orden.costoEnvio | currency:'PEN':'S/ ' }}</strong></p>
+        <p>Total <strong>{{ orden.total | currency:'PEN':'S/ ' }}</strong></p>
+      </section>
+    </div>
+  </div>
+}
