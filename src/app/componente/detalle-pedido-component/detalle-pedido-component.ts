@@ -5,8 +5,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {finalize} from 'rxjs';
 import {ESTADOS_PEDIDO, Pedido} from '../../model/compra';
 import {CompraService, mensajeDeError} from '../../services/compra.service';
+import {EcoImpacto} from '../eco-impacto-component/eco-impacto-component';
 
-@Component({imports: [CurrencyPipe, DatePipe, RouterLink, MatButtonModule], styleUrl: './detalle-pedido-component.css', templateUrl: './detalle-pedido-component.html'})
+@Component({imports: [CurrencyPipe, DatePipe, RouterLink, MatButtonModule, EcoImpacto], styleUrl: './detalle-pedido-component.css', templateUrl: './detalle-pedido-component.html'})
 export class DetallePedido implements OnInit {
   private readonly compra = inject(CompraService);
   private readonly ruta = inject(ActivatedRoute);

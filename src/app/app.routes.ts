@@ -15,5 +15,6 @@ export const routes: Routes = [
   {path: 'pedidos/:id', canActivate: [requiereSesion, requiereCliente], loadComponent: () => import('./componente/detalle-pedido-component/detalle-pedido-component').then(m => m.DetallePedido)},
   {path: 'admin/productos', canActivate: [requiereSesion, requiereAdmin], loadComponent: () => import('./componente/admin-productos-component/admin-productos-component').then(m => m.AdminProductos)},
   {path: 'admin/pedidos', canActivate: [requiereSesion, requiereAdmin], loadComponent: () => import('./componente/admin-pedidos-component/admin-pedidos-component').then(m => m.AdminPedidos)},
+  {path: 'soporte', canActivate: [requiereSesion, requiereCliente], loadComponent: () => import('./componente/soporte-component/soporte-component').then(m => m.Soporte)},
   {path: '**', redirectTo: 'catalogo'},
 ];

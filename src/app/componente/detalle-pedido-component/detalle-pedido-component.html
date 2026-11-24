@@ -24,7 +24,7 @@
       <p>{{ orden.nombreReceptor }} · {{ orden.direccionEnvio }}, {{ orden.distrito }}, {{ orden.ciudad }}</p>
     </section>
     <div class="resumen">
-      
+      <app-eco-impacto [valor]="orden.co2Ahorrado" detalle="Estimación guardada con el pedido." />
       <section class="panel">
         <p>Subtotal <strong>{{ orden.subtotal | currency:'PEN':'S/ ' }}</strong></p>
         <p>Envío <strong>{{ orden.costoEnvio | currency:'PEN':'S/ ' }}</strong></p>

@@ -18,7 +18,7 @@
       <button mat-flat-button type="submit" [disabled]="enviando() || !total()">{{ enviando() ? 'Confirmando…' : 'Confirmar pedido' }}</button>
     </form>
     <div class="resumen">
-      
+      @if (impacto() !== null) { <app-eco-impacto [valor]="impacto()!" /> }
       <div class="panel">
         <h2>Resumen del carrito</h2>
         @for (item of items(); track item.id) { <p>{{ item.cantidad }} × {{ item.nombreProducto }}</p> }

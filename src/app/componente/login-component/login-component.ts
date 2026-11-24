@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,7 @@ import { LoginService } from '../../services/login-service';
 
 @Component({
   selector: 'app-login-component',
-  imports: [ReactiveFormsModule, MatCardModule, MatTabsModule, MatButtonToggleModule,
+  imports: [ReactiveFormsModule, MatCardModule, MatTabsModule, MatCheckboxModule,
     MatFormFieldModule, MatInputModule, MatButtonModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
@@ -27,9 +27,9 @@ export class LoginComponent {
   error = '';
   mensaje = '';
   loginForm = this.fb.nonNullable.group({
-    tipoAcceso: ['ROLE_USER', Validators.required],
     username: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
+    verificarHumano: [false, Validators.requiredTrue],
   });
   registerForm = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
@@ -45,20 +45,24 @@ export class LoginComponent {
     const datos = this.loginForm.getRawValue();
     this.loginService.login({ username: datos.username.trim(), password: datos.password }).subscribe({
       next: data => {
-        if (!data.roles?.includes(datos.tipoAcceso)) {
+        const rol = data.roles?.includes('ROLE_ADMIN') ? 'ROLE_ADMIN'
+          : data.roles?.includes('ROLE_USER') ? 'ROLE_USER' : null;
+        if (rol === null) {
           this.loginService.logout();
-          this.error = 'Esta cuenta no tiene el tipo de acceso seleccionado.';
+          this.loginForm.controls.verificarHumano.reset();
+          this.error = 'La cuenta no tiene un rol de acceso válido.';
           this.terminar();
           return;
         }
-        localStorage.setItem('rol', datos.tipoAcceso);
+        localStorage.setItem('rol', rol);
         localStorage.setItem('roles', data.roles.join(','));
         localStorage.setItem('nombre', data.nombre || '');
         localStorage.setItem('userId', String(data.userId));
         this.terminar();
-        this.router.navigate(['/catalogo']);
+        this.router.navigate([rol === 'ROLE_ADMIN' ? '/admin/productos' : '/catalogo']);
       },
       error: () => {
+        this.loginForm.controls.verificarHumano.reset();
         this.error = 'No se pudo ingresar. Revisa las credenciales y la conexión.';
         this.terminar();
       },
@@ -76,7 +80,7 @@ export class LoginComponent {
       ...datos, nombre: datos.nombre.trim(), username: datos.username.trim(),
     }).subscribe({
       next: () => {
-        this.loginForm.patchValue({ username: datos.username.trim(), tipoAcceso: 'ROLE_USER' });
+        this.loginForm.patchValue({ username: datos.username.trim(), verificarHumano: false });
         this.registerForm.reset();
         this.tabIndex = 0;
         this.mensaje = 'Cuenta creada. Inicia sesión con tu correo y contraseña.';

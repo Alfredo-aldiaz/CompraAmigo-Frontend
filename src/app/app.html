@@ -1,2 +1,3 @@
 <app-navbar />
 <main class="contenedor"><router-outlet /></main>
+@if (sesion.sesion()?.roles?.includes('ROLE_USER')) { <app-chat-flotante /> }

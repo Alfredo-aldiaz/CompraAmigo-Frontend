@@ -11,9 +11,10 @@ import {catchError, EMPTY, finalize, startWith, switchMap} from 'rxjs';
 import {CarritoItem, TotalCheckout} from '../../model/compra';
 import {CompraService, mensajeDeError} from '../../services/compra.service';
 import {SesionService} from '../../services/sesion.service';
+import {EcoImpacto} from '../eco-impacto-component/eco-impacto-component';
 
 @Component({
-  imports: [MatFormFieldModule, MatInputModule, MatSelectModule, CurrencyPipe, ReactiveFormsModule, MatButtonModule, RouterLink],
+  imports: [MatFormFieldModule, MatInputModule, MatSelectModule, CurrencyPipe, ReactiveFormsModule, MatButtonModule, RouterLink, EcoImpacto],
   styleUrl: './checkout-component.css', templateUrl: './checkout-component.html',
 })
 export class Checkout implements OnInit {
@@ -26,6 +27,7 @@ export class Checkout implements OnInit {
   protected readonly enviando = signal(false);
   protected readonly error = signal('');
   protected readonly total = signal<TotalCheckout | null>(null);
+  protected readonly impacto = signal<number | null>(null);
   protected readonly formulario = inject(FormBuilder).nonNullable.group({
     nombreReceptor: [this.usuario.nombre, Validators.required],
     telefono: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
@@ -58,6 +60,10 @@ export class Checkout implements OnInit {
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(total => this.total.set(total));
+    this.compra.impactoCarrito().subscribe({
+      next: impacto => this.impacto.set(impacto.kgCo2Ahorrados),
+      error: error => this.error.set(mensajeDeError(error)),
+    });
     this.compra.listarCarrito(this.usuario.userId).pipe(finalize(() => this.cargando.set(false))).subscribe({
       next: items => this.items.set(items),
       error: error => this.error.set(mensajeDeError(error)),

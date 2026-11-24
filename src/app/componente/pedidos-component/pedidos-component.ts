@@ -6,9 +6,10 @@ import {finalize} from 'rxjs';
 import {Pedido} from '../../model/compra';
 import {CompraService, mensajeDeError} from '../../services/compra.service';
 import {SesionService} from '../../services/sesion.service';
+import {EcoImpacto} from '../eco-impacto-component/eco-impacto-component';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe, RouterLink, MatButtonModule],
+  imports: [CurrencyPipe, DatePipe, RouterLink, MatButtonModule, EcoImpacto],
   styleUrl: './pedidos-component.css', templateUrl: './pedidos-component.html',
 })
 export class Pedidos implements OnInit {

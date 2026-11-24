@@ -84,7 +84,17 @@ export class CompraService {
     return this.http.put<Pedido>(`${this.url}/pedido/${id}/estado`, null, {params: {estado}});
   }
 
+  impactoCarrito() {
+    return this.http.get<{kgCo2Ahorrados: number; unidades: number}>(this.url + '/v1/cart/eco-impact');
+  }
 
+  chat(mensaje: string, pedidoId: number | null) {
+    return this.http.post<{respuesta: string; ofrecerSoporte: boolean}>(this.url + '/v1/bot/chat', {mensaje, pedidoId});
+  }
+
+  crearTicket(asunto: string, mensaje: string, pedidoId: number | null) {
+    return this.http.post<{id: number; codigo: string}>(this.url + '/v1/support/tickets', {asunto, mensaje, pedidoId});
+  }
 }
 
 export function mensajeDeError(error: HttpErrorResponse): string {

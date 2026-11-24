@@ -2,13 +2,14 @@ import {CurrencyPipe} from '@angular/common';
 import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {RouterLink} from '@angular/router';
-import {Observable, finalize} from 'rxjs';
+import {Observable, finalize, forkJoin} from 'rxjs';
 import {CarritoItem, TotalCheckout} from '../../model/compra';
 import {CompraService, mensajeDeError} from '../../services/compra.service';
 import {SesionService} from '../../services/sesion.service';
+import {EcoImpacto} from '../eco-impacto-component/eco-impacto-component';
 
 @Component({
-  imports: [CurrencyPipe, MatButtonModule, RouterLink],
+  imports: [CurrencyPipe, MatButtonModule, RouterLink, EcoImpacto],
   styleUrl: './carrito-component.css', templateUrl: './carrito-component.html',
 })
 export class Carrito implements OnInit {
@@ -19,10 +20,11 @@ export class Carrito implements OnInit {
   protected readonly pendiente = signal(false);
   protected readonly error = signal('');
   protected readonly subtotal = computed(() => this.items().reduce((total, item) => total + item.subtotal, 0));
+  protected readonly impacto = signal<number | null>(null);
   protected readonly totalEstandar = signal<TotalCheckout | null>(null);
 
   ngOnInit() {
-    this.cargarTotal();
+    this.cargarImpacto();
     this.compra.listarCarrito(this.usuario.userId).pipe(finalize(() => this.cargando.set(false))).subscribe({
       next: items => this.items.set(items),
       error: error => this.error.set(mensajeDeError(error)),
@@ -45,15 +47,19 @@ export class Carrito implements OnInit {
     this.error.set('');
     this.pendiente.set(true);
     peticion.pipe(finalize(() => this.pendiente.set(false))).subscribe({
-      next: resultado => { aplicar(resultado); this.cargarTotal(); },
+      next: resultado => { aplicar(resultado); this.cargarImpacto(); },
       error: error => this.error.set(mensajeDeError(error)),
     });
   }
 
-  private cargarTotal() {
+  private cargarImpacto() {
+    this.impacto.set(null);
     this.totalEstandar.set(null);
-    this.compra.totalCheckout('estandar').subscribe({
-      next: total => this.totalEstandar.set(total),
+    forkJoin({impacto: this.compra.impactoCarrito(), total: this.compra.totalCheckout('estandar')}).subscribe({
+      next: ({impacto, total}) => {
+        this.impacto.set(impacto.kgCo2Ahorrados);
+        this.totalEstandar.set(total);
+      },
       error: error => this.error.set(mensajeDeError(error)),
     });
   }

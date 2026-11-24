@@ -18,7 +18,7 @@
       }
     </div>
     <div class="resumen">
-      
+      @if (impacto() !== null) { <app-eco-impacto [valor]="impacto()!" /> }
       <div class="panel">
         <p>Subtotal <strong>{{ subtotal() | currency:'PEN':'S/ ' }}</strong></p>
         @if (totalEstandar(); as importe) {

@@ -11,10 +11,6 @@
       <mat-tab-group [(selectedIndex)]="tabIndex" dynamicHeight>
         <mat-tab label="Iniciar sesión">
           <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" class="form-container" novalidate>
-            <mat-button-toggle-group formControlName="tipoAcceso" aria-label="Tipo de acceso">
-              <mat-button-toggle value="ROLE_USER">Usuario</mat-button-toggle>
-              <mat-button-toggle value="ROLE_ADMIN">Administrador</mat-button-toggle>
-            </mat-button-toggle-group>
             <mat-form-field appearance="outline">
               <mat-label>Correo electrónico</mat-label>
               <input matInput type="email" formControlName="username" autocomplete="username">
@@ -25,6 +21,10 @@
               <input matInput type="password" formControlName="password" autocomplete="current-password">
               <mat-error>Ingresa tu contraseña.</mat-error>
             </mat-form-field>
+            <mat-checkbox formControlName="verificarHumano">Confirmo que soy humano</mat-checkbox>
+            @if (loginForm.controls.verificarHumano.touched && loginForm.controls.verificarHumano.invalid) {
+              <mat-error>Marca la casilla para continuar.</mat-error>
+            }
             <button mat-flat-button type="submit" [disabled]="ocupado">Ingresar</button>
           </form>
         </mat-tab>
