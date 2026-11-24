@@ -1,0 +1,27 @@
+import {CurrencyPipe, DatePipe} from '@angular/common';
+import {Component, OnInit, inject, signal} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {MatButtonModule} from '@angular/material/button';
+import {finalize} from 'rxjs';
+import {Pedido} from '../../model/compra';
+import {CompraService, mensajeDeError} from '../../services/compra.service';
+import {SesionService} from '../../services/sesion.service';
+
+@Component({
+  imports: [CurrencyPipe, DatePipe, RouterLink, MatButtonModule],
+  styleUrl: './pedidos-component.css', templateUrl: './pedidos-component.html',
+})
+export class Pedidos implements OnInit {
+  private readonly compra = inject(CompraService);
+  private readonly usuario = inject(SesionService).sesion()!;
+  protected readonly pedidos = signal<Pedido[]>([]);
+  protected readonly cargando = signal(true);
+  protected readonly error = signal('');
+
+  ngOnInit() {
+    this.compra.listarPedidos(this.usuario.userId).pipe(finalize(() => this.cargando.set(false))).subscribe({
+      next: pedidos => this.pedidos.set(pedidos),
+      error: error => this.error.set(mensajeDeError(error)),
+    });
+  }
+}

@@ -1,6 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -8,115 +7,90 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { LoginService } from '../../services/login-service';
-import { RequestDto } from '../../model/request-dto';
-import { RegistroDto } from '../../model/registro-dto';
-import { MatChipsModule } from '@angular/material/chips';
-
 
 @Component({
   selector: 'app-login-component',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatTabsModule,
-    MatButtonToggleModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule
-  ],
+  imports: [ReactiveFormsModule, MatCardModule, MatTabsModule, MatButtonToggleModule,
+    MatFormFieldModule, MatInputModule, MatButtonModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
-export class LoginComponent implements OnInit {
-  router = inject(Router);
-  fb = inject(FormBuilder);
-  loginService = inject(LoginService);
+export class LoginComponent {
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly loginService = inject(LoginService);
+  private readonly vista = inject(ChangeDetectorRef);
 
-  loginForm: FormGroup;
-  registerForm: FormGroup;
-  ocultarPassword = true;
   tabIndex = 0;
-
-  constructor() {
-    this.loginForm = this.fb.group({
-      tipoAcceso: ['ROLE_USER', Validators.required],
-      username: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-    });
-
-    this.registerForm = this.fb.group({
-      nombre: ['', Validators.required],
-      username: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
-    });
-  }
-
-  ngOnInit(): void {
-    if (localStorage.getItem('token') !== null) {
-      localStorage.clear();
-    }
-  }
+  ocupado = false;
+  error = '';
+  mensaje = '';
+  loginForm = this.fb.nonNullable.group({
+    tipoAcceso: ['ROLE_USER', Validators.required],
+    username: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
+  registerForm = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
+    username: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
   onSubmitLogin(): void {
-    if (this.loginForm.invalid) {
-      alert('Por favor completa todos los campos correctamente.');
-      return;
-    }
-
-    const tipoSeleccionado = this.loginForm.value.tipoAcceso;
-    const requestDto = new RequestDto();
-    requestDto.username = this.loginForm.value.username;
-    requestDto.password = this.loginForm.value.password;
-
-    this.loginService.login(requestDto).subscribe({
-      next: (data) => {
-        const rolReal = data.roles && data.roles.length > 0 ? data.roles[0] : '';
-
-        if (rolReal !== tipoSeleccionado) {
+    this.loginForm.markAllAsTouched();
+    if (this.ocupado || this.loginForm.invalid) return;
+    this.ocupado = true;
+    this.error = '';
+    const datos = this.loginForm.getRawValue();
+    this.loginService.login({ username: datos.username.trim(), password: datos.password }).subscribe({
+      next: data => {
+        if (!data.roles?.includes(datos.tipoAcceso)) {
           this.loginService.logout();
-          const nombrePerfil = tipoSeleccionado === 'ROLE_ADMIN' ? 'Administrador' : 'Usuario';
-          alert(`Esta cuenta no tiene permisos de ${nombrePerfil}. Cambia el tipo de ingreso.`);
+          this.error = 'Esta cuenta no tiene el tipo de acceso seleccionado.';
+          this.terminar();
           return;
         }
-
-        localStorage.setItem('rol', rolReal);
+        localStorage.setItem('rol', datos.tipoAcceso);
+        localStorage.setItem('roles', data.roles.join(','));
         localStorage.setItem('nombre', data.nombre || '');
-        localStorage.setItem('userId', String(data.userId || ''));
-
-        alert(`¡Bienvenido ${data.nombre || data.username}!`);
-        this.router.navigate(['/home']);
+        localStorage.setItem('userId', String(data.userId));
+        this.terminar();
+        this.router.navigate(['/catalogo']);
       },
-      error: (err) => {
-        console.error(err);
-        alert('Credenciales incorrectas o error de conexión con el servidor.');
+      error: () => {
+        this.error = 'No se pudo ingresar. Revisa las credenciales y la conexión.';
+        this.terminar();
       },
     });
   }
 
   onSubmitRegister(): void {
-    if (this.registerForm.invalid) {
-      alert('Completa todos los campos del registro correctamente.');
-      return;
-    }
-
-    const registroDto: RegistroDto = this.registerForm.value;
-
-    this.loginService.registrar(registroDto).subscribe({
+    this.registerForm.markAllAsTouched();
+    if (this.ocupado || this.registerForm.invalid) return;
+    this.ocupado = true;
+    this.error = '';
+    this.mensaje = '';
+    const datos = this.registerForm.getRawValue();
+    this.loginService.registrar({
+      ...datos, nombre: datos.nombre.trim(), username: datos.username.trim(),
+    }).subscribe({
       next: () => {
-        alert('¡Cuenta creada con éxito! Ahora puedes iniciar sesión como Usuario.');
+        this.loginForm.patchValue({ username: datos.username.trim(), tipoAcceso: 'ROLE_USER' });
         this.registerForm.reset();
         this.tabIndex = 0;
+        this.mensaje = 'Cuenta creada. Inicia sesión con tu correo y contraseña.';
+        this.terminar();
       },
-      error: (err) => {
-        console.error(err);
-        alert('No se pudo registrar. Verifica si el correo ya existe.');
+      error: () => {
+        this.error = 'No se pudo crear la cuenta. Comprueba si el correo ya está registrado.';
+        this.terminar();
       },
     });
+  }
+
+  private terminar(): void {
+    this.ocupado = false;
+    this.vista.markForCheck();
   }
 }

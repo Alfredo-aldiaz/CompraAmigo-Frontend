@@ -1,26 +1,23 @@
-import { HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
-import { catchError, EMPTY, throwError } from 'rxjs';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { LoginService } from '../services/login-service';
 
 export const loginInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  const token = localStorage.getItem('token');
-
-  const authReq = token
-    ? req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
-      })
-    : req;
-
-  return next(authReq).pipe(
-    catchError((error) => {
-      if (error.status === HttpStatusCode.Unauthorized) {
-        localStorage.clear();
-        router.navigate(['/login']);
-        return EMPTY;
-      }
-      return throwError(() => error);
-    }),
-  );
+  const login = inject(LoginService);
+  const propia = req.url.startsWith(environment.apiURL + '/');
+  const publica = req.url.endsWith('/authenticate') || req.url.endsWith('/register');
+  const token = login.getToken();
+  const authReq = propia && !publica && token
+    ? req.clone({ setHeaders: { Authorization: 'Bearer ' + token } }) : req;
+  return next(authReq).pipe(catchError(error => {
+    if (propia && !publica && error.status === 401) {
+      login.logout();
+      router.navigate(['/login']);
+    }
+    return throwError(() => error);
+  }));
 };

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './componente/navbar/navbar';
 
@@ -9,5 +9,4 @@ import { Navbar } from './componente/navbar/navbar';
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('CompraAmigo-Frontend');
 }

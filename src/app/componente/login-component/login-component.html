@@ -1,99 +1,54 @@
 <div class="login-wrapper">
   <mat-card class="login-split-card">
-
     <div class="left-banner">
-      <div class="logo-box">
-        <img src="logo_compraamigo.png" alt="Logo CompraAmigo" class="brand-logo" />
-      </div>
-
-      <div class="banner-overlay">
-        <h2>Compra con propósito</h2>
-        <p>Descubre productos responsables, mide tu impacto positivo en los ODS y recibe ayuda de nuestro asistente inteligente.</p>
-
-        <mat-chip-set class="eco-chips">
-          <mat-chip highlighted>
-            <mat-icon matChipAvatar>eco</mat-icon> Impacto ODS
-          </mat-chip>
-          <mat-chip highlighted>
-            <mat-icon matChipAvatar>smart_toy</mat-icon> Asistente IA
-          </mat-chip>
-        </mat-chip-set>
-      </div>
+      <img src="images/logo_compraamigo.png" alt="CompraAmigo" width="180">
+      <div><h1>Compra con propósito</h1><p>Consulta el catálogo y el impacto estimado de tu compra.</p></div>
     </div>
-
     <div class="right-form">
-      <div class="brand-title">
-        <h2>CompraAmigo</h2>
-        <span>Elige cómo deseas ingresar o crea tu cuenta</span>
-      </div>
-
-      <mat-tab-group [(selectedIndex)]="tabIndex" mat-stretch-tabs="true" dynamicHeight>
-
-        <mat-tab label="Iniciar Sesión">
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" class="form-container">
-
-            <div class="role-selector">
-              <label class="role-label">Ingresar como:</label>
-              <mat-button-toggle-group formControlName="tipoAcceso" aria-label="Tipo de acceso">
-                <mat-button-toggle value="ROLE_USER">
-                  <mat-icon>person</mat-icon> Usuario
-                </mat-button-toggle>
-                <mat-button-toggle value="ROLE_ADMIN">
-                  <mat-icon>admin_panel_settings</mat-icon> Administrador
-                </mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-
-            <mat-form-field appearance="outline" class="full-width">
+      <h2>CompraAmigo</h2>
+      @if (error) { <p role="alert" class="error">{{ error }}</p> }
+      @if (mensaje) { <p role="status" class="aviso">{{ mensaje }}</p> }
+      <mat-tab-group [(selectedIndex)]="tabIndex" dynamicHeight>
+        <mat-tab label="Iniciar sesión">
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" class="form-container" novalidate>
+            <mat-button-toggle-group formControlName="tipoAcceso" aria-label="Tipo de acceso">
+              <mat-button-toggle value="ROLE_USER">Usuario</mat-button-toggle>
+              <mat-button-toggle value="ROLE_ADMIN">Administrador</mat-button-toggle>
+            </mat-button-toggle-group>
+            <mat-form-field appearance="outline">
               <mat-label>Correo electrónico</mat-label>
-              <input matInput type="email" formControlName="username" placeholder="cliente@gmail.com" />
-              <mat-icon matSuffix>email</mat-icon>
+              <input matInput type="email" formControlName="username" autocomplete="username">
+              <mat-error>Ingresa un correo válido.</mat-error>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline">
               <mat-label>Contraseña</mat-label>
-              <input matInput [type]="ocultarPassword ? 'password' : 'text'" formControlName="password" />
-              <button mat-icon-button matSuffix type="button" (click)="ocultarPassword = !ocultarPassword">
-                <mat-icon>{{ ocultarPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
+              <input matInput type="password" formControlName="password" autocomplete="current-password">
+              <mat-error>Ingresa tu contraseña.</mat-error>
             </mat-form-field>
-
-            <button type="submit" mat-raised-button class="full-width btn-primary-eco">
-              Ingresar
-            </button>
+            <button mat-flat-button type="submit" [disabled]="ocupado">Ingresar</button>
           </form>
         </mat-tab>
-
-        <mat-tab label="Registrarse">
-          <form [formGroup]="registerForm" (ngSubmit)="onSubmitRegister()" class="form-container">
-            <mat-form-field appearance="outline" class="full-width">
+        <mat-tab label="Crear cuenta">
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmitRegister()" class="form-container" novalidate>
+            <mat-form-field appearance="outline">
               <mat-label>Nombre completo</mat-label>
-              <input matInput formControlName="nombre" placeholder="Tu nombre" />
-              <mat-icon matSuffix>person</mat-icon>
+              <input matInput formControlName="nombre" autocomplete="name">
+              <mat-error>Ingresa tu nombre.</mat-error>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline">
               <mat-label>Correo electrónico</mat-label>
-              <input matInput type="email" formControlName="username" placeholder="ejemplo@correo.com" />
-              <mat-icon matSuffix>email</mat-icon>
+              <input matInput type="email" formControlName="username" autocomplete="username">
+              <mat-error>Ingresa un correo válido.</mat-error>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline">
               <mat-label>Contraseña</mat-label>
-              <input matInput [type]="ocultarPassword ? 'password' : 'text'" formControlName="password" />
-              <button mat-icon-button matSuffix type="button" (click)="ocultarPassword = !ocultarPassword">
-                <mat-icon>{{ ocultarPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
+              <input matInput type="password" formControlName="password" autocomplete="new-password">
+              <mat-error>Usa al menos 6 caracteres.</mat-error>
             </mat-form-field>
-
-            <button type="submit" mat-raised-button class="full-width btn-primary-eco">
-              Crear cuenta de Usuario
-            </button>
+            <button mat-flat-button type="submit" [disabled]="ocupado">Crear cuenta de usuario</button>
           </form>
         </mat-tab>
-
       </mat-tab-group>
     </div>
-
   </mat-card>
 </div>

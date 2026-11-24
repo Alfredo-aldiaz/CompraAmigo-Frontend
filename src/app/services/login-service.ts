@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -12,6 +12,7 @@ const TOKEN_KEY = 'token';
   providedIn: 'root',
 })
 export class LoginService {
+  private readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private readonly http = inject(HttpClient);
   private readonly urlAuth = environment.apiURL + '/authenticate';
   private readonly urlRegister = environment.apiURL + '/register';
@@ -26,6 +27,7 @@ export class LoginService {
         } else if (response.body?.jwt) {
           localStorage.setItem(TOKEN_KEY, response.body.jwt);
         }
+        this.token.set(localStorage.getItem(TOKEN_KEY));
         return response.body as ResponseDto;
       }),
     );
@@ -36,7 +38,7 @@ export class LoginService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.token();
   }
 
   getRol(): string | null {
@@ -44,6 +46,9 @@ export class LoginService {
   }
 
   logout(): void {
-    localStorage.clear();
+    this.token.set(null);
+    for (const key of ['token', 'rol', 'roles', 'nombre', 'userId']) {
+      localStorage.removeItem(key);
+    }
   }
 }

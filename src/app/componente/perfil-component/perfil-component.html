@@ -1,0 +1,15 @@
+<section class="encabezado"><div><h1>Mi perfil</h1><p>Guarda la dirección que quieres usar al comprar.</p></div></section>
+<form class="panel formulario-acotado" [formGroup]="formulario" (ngSubmit)="guardar()">
+  <mat-form-field appearance="outline" ><mat-label>Correo de la cuenta</mat-label><input matInput type="email" [value]="correo()" readonly><mat-error>Revisa este campo.</mat-error></mat-form-field>
+  <div class="campos">
+    <mat-form-field appearance="outline" ><mat-label>Nombre</mat-label><input matInput formControlName="nombre" autocomplete="name"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline" ><mat-label>Teléfono</mat-label><input matInput formControlName="telefono" type="tel" autocomplete="tel"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline" ><mat-label>Ciudad</mat-label><input matInput formControlName="ciudad" autocomplete="address-level1"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline" ><mat-label>Distrito</mat-label><input matInput formControlName="distrito" autocomplete="address-level2"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline" class="ancho"><mat-label>Dirección</mat-label><input matInput formControlName="direccion" autocomplete="street-address"><mat-error>Revisa este campo.</mat-error></mat-form-field>
+  </div>
+  @if (formulario.touched && formulario.invalid) { <p class="error-campo">Completa los campos. El teléfono debe tener 9 dígitos.</p> }
+  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+  @if (guardado()) { <p class="aviso" role="status">Perfil guardado.</p> }
+  <button mat-flat-button type="submit" [disabled]="ocupado()">Guardar perfil</button>
+</form>
