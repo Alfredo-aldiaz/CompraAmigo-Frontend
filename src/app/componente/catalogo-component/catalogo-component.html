@@ -6,12 +6,34 @@
 @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
 @if (aviso()) { <p class="aviso" role="status">{{ aviso() }} <a routerLink="/carrito">Ver carrito</a></p> }
 @if (!cargando() && productos().length) {
-  <mat-form-field appearance="outline" class="buscar-producto"><mat-label>Buscar por nombre</mat-label><input matInput type="search" #buscar [value]="busqueda()" (input)="busqueda.set(buscar.value)" placeholder="Ej. mochila">
-  <mat-error>Revisa este campo.</mat-error></mat-form-field>
-  <p class="muted conteo-productos" aria-live="polite">{{ visibles().length }} productos</p>
+  <div class="filtros-catalogo">
+    <mat-form-field appearance="outline" class="buscar-producto">
+      <mat-label>Buscar productos</mat-label>
+      <input matInput type="search" #buscar [value]="busqueda()" (input)="busqueda.set(buscar.value)" placeholder="Ej. mochila">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select [value]="categoria()" (selectionChange)="categoria.set($event.value)">
+        <mat-option [value]="null">Todas las categorías</mat-option>
+        @for (opcion of categorias(); track opcion.id) { <mat-option [value]="opcion.id">{{ opcion.nombre }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Ordenar por</mat-label>
+      <mat-select [value]="orden()" (selectionChange)="orden.set($event.value)">
+        <mat-option value="relevancia">Relevancia</mat-option>
+        <mat-option value="precio-asc">Menor precio</mat-option>
+        <mat-option value="precio-desc">Mayor precio</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <p class="muted conteo-productos" aria-live="polite">{{ visibles().length }} productos encontrados</p>
+  @if (alternativas().length) {
+    <p class="muted" role="status">No hay coincidencias exactas para tu búsqueda. Te mostramos {{ alternativas().length }} alternativas.</p>
+  }
 }
 <div class="catalogo">
-  @for (producto of visibles(); track producto.id) {
+  @for (producto of mostrados(); track producto.id) {
     <article class="producto">
       @if (imagen(producto); as foto) { <img [src]="foto" [alt]="producto.nombre" loading="lazy"> }
       @else { <div class="sin-foto">Imagen no disponible</div> }
@@ -27,7 +49,7 @@
               @for (opcion of opciones; track opcion) { <mat-option [value]="opcion">{{ opcion }}</mat-option> }
               @empty { <mat-option value="">Única</mat-option> }
             </mat-select>
-          <mat-error>Revisa este campo.</mat-error></mat-form-field>
+          </mat-form-field>
           <button mat-flat-button type="button" [disabled]="producto.stock <= 0 || pendiente() !== null" (click)="agregar(producto, talla.value)">
             {{ producto.stock <= 0 ? 'Agotado' : 'Agregar al carrito' }}
           </button>
@@ -35,6 +57,6 @@
       </div>
     </article>
   } @empty {
-    @if (!cargando() && !error()) { <p>{{ busqueda().trim() ? 'No se encontraron productos con ese nombre.' : 'El catálogo está vacío.' }}</p> }
+    @if (!cargando() && !error()) { <p>{{ busqueda().trim() ? 'No se encontraron productos disponibles para esta búsqueda.' : 'El catálogo está vacío o no hay productos en la categoría seleccionada.' }}</p> }
   }
 </div>

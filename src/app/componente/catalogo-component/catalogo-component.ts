@@ -6,7 +6,8 @@ import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {RouterLink} from '@angular/router';
 import {finalize} from 'rxjs';
-import {Producto} from '../../model/compra';
+import {Categoria, Producto} from '../../model/compra';
+import {filtrarProductos, OrdenCatalogo, sugerirAlternativas} from '../../model/filtros-catalogo';
 import {imagenProducto, tallasProducto} from '../../model/presentacion-producto';
 import {CompraService, mensajeDeError} from '../../services/compra.service';
 import {SesionService} from '../../services/sesion.service';
@@ -20,11 +21,19 @@ export class Catalogo implements OnInit {
   protected readonly sesion = inject(SesionService);
   protected readonly productos = signal<Producto[]>([]);
   protected readonly busqueda = signal('');
-  protected readonly visibles = computed(() => {
-    const normalizar = (texto: string) => texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-    const termino = normalizar(this.busqueda().trim());
-    return this.productos().filter(producto => normalizar(producto.nombre).includes(termino));
+  protected readonly categoria = signal<number | null>(null);
+  protected readonly orden = signal<OrdenCatalogo>('relevancia');
+  protected readonly categorias = computed<Categoria[]>(() => {
+    const únicas = new Map<number, Categoria>();
+    for (const producto of this.productos()) {
+      if (producto.categoria) únicas.set(producto.categoria.id, producto.categoria);
+    }
+    return [...únicas.values()].sort((a, b) => a.nombre.localeCompare(b.nombre));
   });
+  protected readonly visibles = computed(() => filtrarProductos(this.productos(), this.busqueda(), this.categoria(), this.orden()));
+  protected readonly alternativas = computed(() => this.busqueda().trim() && this.visibles().length === 0
+    ? sugerirAlternativas(this.productos(), this.busqueda(), this.categoria()) : []);
+  protected readonly mostrados = computed(() => this.visibles().length ? this.visibles() : this.alternativas());
   protected readonly cargando = signal(true);
   protected readonly pendiente = signal<number | null>(null);
   protected readonly error = signal('');

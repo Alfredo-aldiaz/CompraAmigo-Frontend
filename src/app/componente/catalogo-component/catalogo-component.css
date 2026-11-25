@@ -1,0 +1,11 @@
+.filtros-catalogo {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin: 20px 0 6px;
+}
+.filtros-catalogo mat-form-field { width: 100%; }
+@media (max-width: 760px) {
+  .filtros-catalogo { grid-template-columns: 1fr; gap: 4px; }
+}
